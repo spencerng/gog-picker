@@ -1,0 +1,91 @@
+@import "../../variables.scss";
+
+.container {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  grid-template-rows: auto;
+  grid-template-areas:
+    ". header ."
+    ". actions ."
+    ". main . "
+    ". main ."
+    ". bottom .";
+
+  @media only screen and (max-width: $largeTabletWidth) {
+    grid-template-columns: 0.25fr 2fr 0.25fr;
+  }
+}
+
+.disclaimer {
+  grid-area: header;
+  margin: 5% 0;
+  text-align: justify;
+}
+
+.results,
+.no-results {
+  grid-area: main;
+}
+
+.results > * {
+  margin: 2% 0;
+}
+
+.warning {
+  background-color: #ffffab;
+}
+
+.error {
+  background-color: #ffe5e5;
+}
+
+.not-entering {
+  background-color: #eaeaea;
+}
+
+.actions {
+  grid-area: actions;
+}
+
+.actions-bottom {
+  grid-area: bottom;
+  margin-bottom: 5%;
+}
+
+.send-button {
+  margin-right: 5px;
+}
+
+.error-text {
+  font-size: small;
+  color: red;
+  margin: 5px;
+}
+
+.no-results {
+  color: red;
+}
+
+.yellow-highlight {
+  background-color: #fafa0b;
+  padding: 5px;
+}
+
+.gray-highlight {
+  background-color: #b3b3b3;
+  padding: 5px;
+}
+
+.red-highlight {
+  background-color: #ff6464;
+  padding: 5px;
+}
+
+.white-highlight {
+  border: 1px solid black;
+  padding: 5px;
+}
+
+.legend li {
+  padding: 6px;
+}

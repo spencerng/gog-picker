@@ -1,0 +1,46 @@
+@import '../../variables.scss';
+
+.container {
+  display: grid;
+  grid-template-columns: 0.5fr 2fr 0.5fr;
+  grid-template-rows: 1fr auto auto auto auto auto 1fr;
+  grid-template-areas:
+    ". . ."
+    ". thread ."
+    ". winners ."
+    ". eligible . "
+    ". not-entering ."
+    ". violators ."
+    ". . .";
+  height: 100%;
+
+  @media only screen and (max-width: $largeTabletWidth) {
+    grid-template-columns: 0.25fr 2fr 0.25fr;
+  }
+}
+
+.eligible,
+.winners {
+  text-align: justify;
+}
+
+.thread {
+  grid-area: thread;
+  margin-bottom: 2%;
+}
+
+.eligible {
+  grid-area: eligible;
+}
+
+.winners {
+  grid-area: winners;
+}
+
+.not-entering {
+  grid-area: not-entering;
+}
+
+.violators {
+  grid-area: violators;
+}

@@ -1,0 +1,117 @@
+<div class="container">
+    <div class="disclaimer">
+        <h1>Scrapped comments</h1>
+        <p>
+            Check comments in yellow as they need your attention (they are displayed at the top; if there are none, you
+            are free to go). Sometimes there are problems that a human resolves better
+            than a machine. If no Steam profile has been detected, please make sure to check it manually. Sometimes it can be false positive.
+        </p>
+        <p>
+            Non entering comments and comments with errors are displayed at the bottom. They are automatically excluded
+            as they can't participate in a drawing. Duplicate entries are discarded later on.
+        </p>
+        Legend:
+        <ul class="legend">
+            <li><span class="yellow-highlight">warning</span></li>
+            <li><span class="gray-highlight">not entering</span></li>
+            <li><span class="red-highlight">violator</span></li>
+            <li><span class="white-highlight">participating</span></li>
+        </ul>
+    </div>
+    <div class="actions" *ngIf='comments && comments.length > 0'>
+        <div>
+            <button mat-stroked-button mat-stroked-button class="send-button" (click)="pickWinners()">
+                Pick winners
+            </button>
+            <button mat-stroked-button mat-stroked-button class="toggle-button" (click)="toggleAll()">
+                Select/deselect all
+            </button>
+        </div>
+        <div class="error-text" *ngIf="isEmptySelect">No items selected</div>
+    </div>
+    <div *ngIf='comments && comments.length === 0' class="no-results">
+        No comments detected!
+    </div>
+    <div *ngIf='isHttpError' class="no-results">
+        Something went wrong. <a [routerLink]="['/']" >Please try again.</a>
+    </div>
+    <div class="results" *ngIf="!isHttpError">
+        <div *ngFor="let comment of comments">
+            <mat-card class="comment warning" *ngIf="hasWarnings(comment) && comment.entering">
+                <mat-card-title>
+                    <a href="https://www.reddit.com/user/{{ comment.author.name }}"
+                        target="_blank">{{ comment.author.name }}</a>
+                </mat-card-title>
+                <mat-card-subtitle>
+                    Comment karma: {{ comment.author.karma }}<span *ngIf='getAge(comment.author.age)'>, age: {{ getAge(comment.author.age) }}</span><br />
+                    <div *ngIf='comment.entering'>
+                        <div *ngIf='canScrapSteamProfile(comment) && comment.steamProfile.steamId'>
+                            <a href="https://steamcommunity.com/profiles/{{ comment.steamProfile.steamId }}/"
+                                target="_blank">Steam profile</a>: {{ getSteamProfile(comment) }}
+                        </div>
+                    </div>
+                    <div><br />Warnings: {{ getWarnings(comment).join(', ') }}</div>
+                </mat-card-subtitle>
+                <mat-card-content [innerHTML]="unescapeQuotes(comment.body)"></mat-card-content>
+                <mat-card-actions>
+                    <mat-checkbox [checked]='false' [value]="comment.author.name" [attr.data-comment-id]="comment.commentId" [attr.data-has-warnings]="hasWarnings(comment)" (change)="saveSelection(comment.commentId, $event)">Participating</mat-checkbox>
+                </mat-card-actions>
+            </mat-card>
+        </div>
+        <div *ngFor="let comment of comments">
+            <mat-card class="comment" *ngIf="!hasWarnings(comment) && !hasErrors(comment) && comment.entering">
+                <mat-card-title>
+                    <a href="https://www.reddit.com/user/{{ comment.author.name }}"
+                        target="_blank">{{ comment.author.name }}</a>
+                </mat-card-title>
+                <mat-card-subtitle>
+                    Comment karma: {{ comment.author.karma }}<span *ngIf='getAge(comment.author.age)'>, age: {{ getAge(comment.author.age) }}</span><br />
+                    <div *ngIf='canScrapSteamProfile(comment) && comment.steamProfile.steamId'>
+                        <a href="https://steamcommunity.com/profiles/{{ comment.steamProfile.steamId }}/"
+                            target="_blank">Steam profile</a>: {{ getSteamProfile(comment) }}
+                    </div>
+                </mat-card-subtitle>
+                <mat-card-content [innerHTML]="unescapeQuotes(comment.body)"></mat-card-content>
+                <mat-card-actions>
+                    <mat-checkbox [checked]='true' [value]="comment.author.name" class="participating" [attr.data-comment-id]="comment.commentId" (change)="saveSelection(comment.commentId, $event)">Participating
+                    </mat-checkbox>
+                </mat-card-actions>
+            </mat-card>
+        </div>
+        <div *ngFor="let comment of comments">
+            <mat-card class="comment not-entering" *ngIf="!comment.entering">
+                <mat-card-title>
+                    <a href="https://www.reddit.com/user/{{ comment.author.name }}"
+                        target="_blank">{{ comment.author.name }}</a>
+                </mat-card-title>
+                <mat-card-subtitle>
+                    Comment karma: {{ comment.author.karma }}<span *ngIf='getAge(comment.author.age)'>, age: {{ getAge(comment.author.age) }}</span><br /><br />
+                </mat-card-subtitle>
+                <mat-card-content [innerHTML]="unescapeQuotes(comment.body)"></mat-card-content>
+            </mat-card>
+        </div>
+        <div *ngFor="let comment of comments">
+            <mat-card class="comment error" *ngIf="hasErrors(comment) && comment.entering && !hasWarnings(comment)">
+                <mat-card-title>
+                    <a href="https://www.reddit.com/user/{{ comment.author.name }}"
+                        target="_blank">{{ comment.author.name }}</a>
+                </mat-card-title>
+                <mat-card-subtitle>
+                    Comment karma: {{ comment.author.karma }}<span *ngIf='getAge(comment.author.age)'>, age: {{ getAge(comment.author.age) }}</span><br />
+                    <div *ngIf='canScrapSteamProfile(comment) && comment.steamProfile.steamId'>
+                        <a href="https://steamcommunity.com/profiles/{{ comment.steamProfile.steamId }}/"
+                            target="_blank">Steam profile</a>: {{ getSteamProfile(comment) }}
+                    </div>
+                    <div><br />Errors: {{ getErrors(comment).join(', ') }}</div>
+                </mat-card-subtitle>
+                <mat-card-content [innerHTML]="unescapeQuotes(comment.body)"></mat-card-content>
+            </mat-card>
+        </div>
+    </div>
+    <div class="actions-bottom" *ngIf='comments && comments.length > 0'>
+        <button mat-stroked-button mat-stroked-button class="send-button" (click)="pickWinners()">
+            Pick winners
+        </button>
+        <div class="error-text" *ngIf="isEmptySelect">No items selected</div>
+    </div>
+</div>
